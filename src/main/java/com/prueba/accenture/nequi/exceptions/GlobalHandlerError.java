@@ -3,9 +3,11 @@ package com.prueba.accenture.nequi.exceptions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
@@ -46,6 +48,16 @@ public class GlobalHandlerError {
 
   @ExceptionHandler(BadRequestException.class)
   public ResponseEntity<Object> handleClientException(BadRequestException ex) {
+    Map<String, Object> body = new HashMap<>();
+    body.put("timestamp", LocalDateTime.now());
+    body.put("message", "Error en el proceso");
+    body.put("error", ex.getMessage());
+
+    return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(WebExchangeBindException.class)
+  public ResponseEntity<Object> handleWebExchangeBindException(WebExchangeBindException ex) {
     Map<String, Object> body = new HashMap<>();
     body.put("timestamp", LocalDateTime.now());
     body.put("message", "Error en el proceso");

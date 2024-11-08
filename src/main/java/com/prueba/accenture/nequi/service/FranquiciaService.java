@@ -25,18 +25,24 @@ public class FranquiciaService {
         this.productoRepository = productoRepository;
     }
 
+    /**
+     * Crea una nueva franquicia.
+     *
+     * @param franquicia Objeto `Franquicia` que contiene los detalles de la nueva franquicia a agregar.
+     * @return Un `Mono` que emite la franquicia guardada en la base de datos.
+     */
     public Mono<Franquicia> addFranquicia(Franquicia franquicia) {
         return franquiciaRepository.save(franquicia);
     }
 
-    public Flux<Franquicia> getAllFranquicias() {
-        return franquiciaRepository.findAll();
-    }
-
-    public Mono<Franquicia> getFranquicia(int id) {
-        return franquiciaRepository.findById(id);
-    }
-
+    /**
+     * Actualiza el nombre de una franquicia específica.
+     *
+     * @param franquiciaId ID de la franquicia que se desea actualizar.
+     * @param nombreFranquicia Nuevo nombre para la franquicia.
+     * @return Un `Mono` que emite la franquicia actualizada o, si no se encuentra, un error de tipo `BadRequestException`.
+     * @throws BadRequestException si la franquicia con el ID proporcionado no existe.
+     */
     public Mono<Franquicia> updateNombreFranquicia(Integer franquiciaId, String nombreFranquicia) {
         return franquiciaRepository.findByIdFranquicia(franquiciaId).switchIfEmpty(Mono.error(new BadRequestException("400","FRANQUICIA NO ENCONTRADA","REVISAR LA FRANQUICIA","MSG-001",400)))
                 .flatMap(franquicia ->{
@@ -45,10 +51,17 @@ public class FranquiciaService {
                 });
     }
 
-    public Flux<ProductoSucursal> getTopStockProductByBranch(Integer idFranquicia) {
+    /**
+     * Obtiene el producto con el mayor stock de una franquicia específica.
+     *
+     * @param idFranquicia ID de la franquicia para la cual se desea consultar el producto con mayor stock.
+     * @return Un `Flux` que emite un único objeto `ProductoSucursal`, que representa el producto con el mayor stock en la sucursal correspondiente de la franquicia.
+     * @throws BadRequestException si la franquicia o la sucursal no existen.
+     */
+    public Flux<ProductoSucursal> getTopStockProductos(Integer idFranquicia) {
         return sucursalRepository.findByIdFranquicia(idFranquicia).switchIfEmpty(Mono.error(new BadRequestException("400","FRANQUICIA NO ENCONTRADA","REVISAR LA FRANQUICIA","MSG-002",400)))
                 .flatMap(franquicia -> productoRepository.findBySucursa(franquicia.getId_sucursal()).switchIfEmpty(Mono.error(new BadRequestException("400","SUCURSAL NO ENCONTRADA","REVISAR LA SUCURSAL","MSG-003",400)))
-                        .sort((p1, p2) -> p2.getStock().compareTo(p1.getStock()))
+                        .sort((product1, product2) -> product2.getStock().compareTo(product1.getStock()))
                         .take(1)
                         .map(product -> new ProductoSucursal(product, franquicia))
                 );

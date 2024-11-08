@@ -20,6 +20,14 @@ public class SucursalService {
         this.franquiciaRepository = franquiciaRepository;
     }
 
+
+    /**
+     * Agrega una nueva sucursal a una franquicia.
+     *
+     * @param sucursal Objeto `Sucursal` que contiene los detalles de la sucursal a agregar, incluyendo el ID de la franquicia asociada.
+     * @return Un `Mono` que emite la sucursal guardada en la base de datos.
+     * @throws BadRequestException si la franquicia asociada a la sucursal no existe, o si ocurre un error en el procesamiento de la consulta.
+     */
     public Mono<Sucursal> addSucursal(Sucursal sucursal) {
         return franquiciaRepository.findByIdFranquicia(sucursal.getId_franquicia())
                 .switchIfEmpty(Mono.error(new BadRequestException("400","FRANQUICIA NO ENCONTRADA","REVISAR LA FRANQUICIA","MSG-001",400)))
@@ -32,6 +40,13 @@ public class SucursalService {
                 });
     }
 
+    /**
+     * Actualiza el nombre de una sucursal específica.
+     *
+     * @param sucursal Objeto `Sucursal` que contiene el ID de la sucursal y el nuevo nombre para actualizar.
+     * @return Un `Mono` que emite la sucursal con el nombre actualizado. Si no se encuentra la sucursal, lanza un `BadRequestException`.
+     * @throws BadRequestException si la sucursal no existe o si ocurre un error durante el procesamiento de la consulta.
+     */
     public Mono<Sucursal> updateSucursalName(Sucursal sucursal) {
         return sucursalRepository.findByIdSucursal(sucursal.getId_sucursal())
                 .switchIfEmpty(Mono.error(new BadRequestException("400","SUCURSAL NO ENCONTRADA","REVISAR EL ID DE LA SUCURSAL","MSG-001",400)))
